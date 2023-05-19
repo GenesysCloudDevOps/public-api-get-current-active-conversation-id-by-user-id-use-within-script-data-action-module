@@ -1,0 +1,60 @@
+{
+  "name": "Get Current Active Conversation ID by User ID",
+  "integrationType": "purecloud-data-actions",
+  "actionType": "custom",
+  "config": {
+    "request": {
+      "requestUrlTemplate": "/api/v2/analytics/conversations/details/query",
+      "requestType": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "requestTemplate": "{\n \"interval\": \"${input.Interval}\",\n \"order\": \"desc\",\n \"orderBy\": \"conversationStart\",\n \"segmentFilters\": [\n  {\n   \"type\": \"and\",\n   \"predicates\": [\n    {\n     \"type\": \"dimension\",\n     \"dimension\": \"userId\",\n     \"operator\": \"matches\",\n     \"value\": \"${input.userId}\"\n    },\n    {\n     \"type\": \"dimension\",\n     \"dimension\": \"segmentEnd\",\n     \"operator\": \"notExists\",\n     \"value\": null\n    },\n    {\n     \"type\": \"dimension\",\n     \"dimension\": \"mediaType\",\n     \"operator\": \"matches\",\n     \"value\": \"voice\"\n    }\n   ]\n  }\n ]\n}"
+    },
+    "response": {
+      "translationMap": {
+        "conversationId": "$.conversations[0].conversationId"
+      },
+      "translationMapDefaults": {
+        "conversationId": "\"Not Found\""
+      },
+      "successTemplate": "{\n   \"conversationId\": ${conversationId}\n}"
+    }
+  },
+  "contract": {
+    "input": {
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "Query for Active voice conversations.",
+        "description": "Fields needed in the body of the POST to create a query.",
+        "type": "object",
+        "required": [
+          "Interval",
+          "userId"
+        ],
+        "properties": {
+          "Interval": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "output": {
+      "successSchema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "Analyitics Query Response",
+        "description": "The full response from the analyitics query.",
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secure": false
+}
